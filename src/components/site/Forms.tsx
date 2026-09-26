@@ -1,0 +1,46 @@
+import { useState, type FormEvent } from "react";
+import { CheckCircle2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { roleOptions } from "@/content/site";
+import { getAttribution, trackEvent, type AnalyticsEvent } from "@/lib/analytics";
+
+const fieldClass = "h-12 bg-surface text-foreground";
+
+type FormKind = "contact" | "athlete" | "partner" | "mentor" | "portal";
+const configs: Record<FormKind, { title: string; description: string; event: AnalyticsEvent; interestLabel: string; options: string[] }> = {
+  contact: { title: "Start a conversation", description: "Tell us how we can help. We will respond with care and discretion.", event: "contact_submission", interestLabel: "How can we help?", options: ["General question", "Programs", "Giving", "Media", "Other"] },
+  athlete: { title: "Athlete interest", description: "Share where you are today. This is an expression of interest, not a commitment.", event: "athlete_application", interestLabel: "Career stage", options: ["Aspiring athlete", "College athlete", "Professional athlete", "Former athlete", "Family member"] },
+  partner: { title: "Partner inquiry", description: "Explore a values-aligned pathway for your organization to contribute.", event: "partner_inquiry", interestLabel: "Organization type", options: ["Team", "University", "Corporation", "Foundation", "Service professional", "Community organization"] },
+  mentor: { title: "Serve with purpose", description: "Tell us whether you are interested in mentoring or volunteering.", event: "mentor_volunteer_interest", interestLabel: "I am interested in", options: ["Becoming a mentor", "Volunteering", "Both"] },
+  portal: { title: "Request access", description: "Portal access will be granted according to role and program participation.", event: "portal_request", interestLabel: "Requested role", options: ["Athlete", "Mentor", "Partner", "Staff", "Administrator"] },
+};
+
+export function InterestForm({ kind }: { kind: FormKind }) {
+  const config = configs[kind];
+  const [submitted, setSubmitted] = useState(false);
+  const [consent, setConsent] = useState(false);
+  const [error, setError] = useState("");
+  function submit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+    if (!consent) { setError("Please confirm that we may respond to your request."); return; }
+    trackEvent(config.event, getAttribution(kind));
+    setSubmitted(true);
+  }
+  if (submitted) return <div className="border border-gold/30 bg-surface p-8" role="status"><CheckCircle2 className="size-9 text-legacy" /><h3 className="mt-5 font-display text-3xl">Thank you.</h3><p className="mt-3 text-sm leading-7 text-muted-foreground">Your information has been validated and this experience is ready for secure delivery connection. No private information is displayed.</p></div>;
+  return <form onSubmit={submit} className="border border-border bg-card p-5 md:p-8" noValidate><div><h2 className="font-display text-3xl md:text-4xl">{config.title}</h2><p className="mt-3 text-sm leading-7 text-muted-foreground">{config.description}</p></div><div className="mt-7 grid gap-5 sm:grid-cols-2"><Field label="First name" id={`${kind}-first`} required><Input id={`${kind}-first`} name="firstName" className={fieldClass} required maxLength={80} autoComplete="given-name" /></Field><Field label="Last name" id={`${kind}-last`} required><Input id={`${kind}-last`} name="lastName" className={fieldClass} required maxLength={80} autoComplete="family-name" /></Field><Field label="Email" id={`${kind}-email`} required><Input id={`${kind}-email`} name="email" className={fieldClass} type="email" required maxLength={255} autoComplete="email" /></Field><Field label="Mobile phone" id={`${kind}-phone`}><Input id={`${kind}-phone`} name="phone" className={fieldClass} type="tel" maxLength={30} autoComplete="tel" /></Field><div className="sm:col-span-2"><Label className="mb-2 block" htmlFor={`${kind}-interest`}>{config.interestLabel} <span className="text-gold">*</span></Label><Select required name="interest"><SelectTrigger id={`${kind}-interest`} className={fieldClass}><SelectValue placeholder="Choose one" /></SelectTrigger><SelectContent>{config.options.map((option) => <SelectItem key={option} value={option}>{option}</SelectItem>)}</SelectContent></Select></div><Field label="Message" id={`${kind}-message`} className="sm:col-span-2"><Textarea id={`${kind}-message`} name="message" className="min-h-32 bg-surface" maxLength={1500} /></Field></div><div className="mt-5 flex items-start gap-3"><Checkbox id={`${kind}-consent`} checked={consent} onCheckedChange={(v) => { setConsent(v === true); setError(""); }} /><Label htmlFor={`${kind}-consent`} className="text-xs leading-5 text-muted-foreground">I consent to being contacted about this request. My information will not be sold.</Label></div>{error && <p className="mt-3 text-sm text-destructive" role="alert">{error}</p>}<div className="mt-6 hidden" aria-hidden><label>Leave this field empty<input name="website" tabIndex={-1} autoComplete="off" /></label></div><Button type="submit" variant="legacy" size="lg" className="mt-6 w-full sm:w-auto">Submit request</Button></form>;
+}
+function Field({ label, id, required, className, children }: { label: string; id: string; required?: boolean; className?: string; children: React.ReactNode }) { return <div className={className}><Label className="mb-2 block" htmlFor={id}>{label}{required && <span className="text-gold"> *</span>}</Label>{children}</div>; }
+
+export function BlueprintForm({ source = "blueprint" }: { source?: string }) {
+  const [submitted, setSubmitted] = useState(false); const [consent, setConsent] = useState(false); const [error, setError] = useState("");
+  function submit(e: FormEvent<HTMLFormElement>) { e.preventDefault(); const form = e.currentTarget; if (!form.checkValidity()) { form.reportValidity(); return; } if (!consent) { setError("Please confirm your consent to receive the Blueprint."); return; } trackEvent("lead_submission", getAttribution(source)); if (typeof window !== "undefined") localStorage.setItem("eal-blueprint-converted", "true"); setSubmitted(true); }
+  if (submitted) return <div className="bg-ivory p-7 text-ink" role="status"><CheckCircle2 className="size-9 text-emerald" /><h3 className="mt-5 font-display text-3xl">Your Blueprint is ready.</h3><p className="mt-3 text-sm leading-6 text-ink-soft">The web guide is prepared for this first release. A downloadable PDF can replace it when the final publication is approved.</p><Button asChild variant="dark" size="lg" className="mt-6"><a href="#blueprint-guide">Open the 12 questions</a></Button></div>;
+  return <form onSubmit={submit} className="grid gap-4" noValidate><div className="grid gap-4 sm:grid-cols-2"><Field label="First name" id={`${source}-first`} required><Input id={`${source}-first`} required maxLength={80} className={fieldClass} /></Field><Field label="Last name" id={`${source}-last`} required><Input id={`${source}-last`} required maxLength={80} className={fieldClass} /></Field></div><Field label="Email" id={`${source}-email`} required><Input id={`${source}-email`} type="email" required maxLength={255} className={fieldClass} /></Field><div className="grid gap-4 sm:grid-cols-2"><Field label="Mobile phone" id={`${source}-phone`}><Input id={`${source}-phone`} type="tel" maxLength={30} className={fieldClass} /></Field><div><Label className="mb-2 block" htmlFor={`${source}-role`}>Role <span className="text-gold">*</span></Label><Select required><SelectTrigger id={`${source}-role`} className={fieldClass}><SelectValue placeholder="Choose one" /></SelectTrigger><SelectContent>{roleOptions.map((role) => <SelectItem value={role} key={role}>{role}</SelectItem>)}</SelectContent></Select></div></div><div className="grid gap-4 sm:grid-cols-2"><Field label="Sport" id={`${source}-sport`}><Input id={`${source}-sport`} maxLength={80} className={fieldClass} /></Field><Field label="Career stage" id={`${source}-stage`}><Input id={`${source}-stage`} maxLength={80} className={fieldClass} /></Field></div><Field label="Primary interest" id={`${source}-interest`} required><Input id={`${source}-interest`} required maxLength={200} className={fieldClass} /></Field><div className="flex items-start gap-3"><Checkbox id={`${source}-consent`} checked={consent} onCheckedChange={(v) => { setConsent(v === true); setError(""); }} /><Label htmlFor={`${source}-consent`} className="text-xs leading-5 text-muted-foreground">I agree to receive the Blueprint and occasional updates. No spam. Unsubscribe anytime.</Label></div>{error && <p className="text-sm text-destructive" role="alert">{error}</p>}<Button type="submit" variant="legacy" size="lg">Get the Blueprint</Button><p className="text-[11px] leading-5 text-muted-foreground">By submitting, you acknowledge our Privacy Policy. Attribution details are captured to improve outreach responsibly.</p></form>;
+}
