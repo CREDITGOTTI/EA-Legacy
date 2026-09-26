@@ -2,6 +2,8 @@
 
 Source snapshot of the Legacy Weaver website built in Lovable.
 
+**GoHighLevel AI Studio:** Read [GOHIGHLEVEL_IMPORT.md](GOHIGHLEVEL_IMPORT.md) before rebuilding. It lists the exact missing media and form integration requirements.
+
 - Lovable project: https://lovable.dev/projects/7ddc1879-7170-44b7-b572-1c79decbb44c
 - Public reference URL requested for GoHighLevel AI Studio: https://ea-legacy.lovable.app
 - Publication status as of September 26, 2026: pending. Verify that the page loads before using it as a URL reference.
