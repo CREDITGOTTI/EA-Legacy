@@ -8,14 +8,14 @@ The homepage is an eight-chapter cinematic football locker room journey, includi
 
 ## Required assets before claiming a faithful rebuild
 
-The four original binary files below are absent from this repository because the source connector did not return intact bytes:
+The four original binary files below were restored from the Lovable codebase ZIP and are present in this repository:
 
 - `public/favicon.png`
 - `src/assets/eal-family.jpg`
 - `src/assets/eal-hero.jpg`
 - `src/assets/eal-pathway.jpg`
 
-Restore the original files from a Lovable codebase ZIP. Do not silently substitute unrelated stock images. The `*.asset.json` files contain Lovable-specific paths for the approved EA Legacy logo and organization videos. They are pointers, not the media bytes. In a GoHighLevel-hosted rebuild, upload the original logo and videos to a durable media library and replace these pointers with the new public media URLs. Confirm playback on desktop and mobile.
+The `*.asset.json` files contain Lovable-specific paths for the approved EA Legacy logo and organization videos. They are pointers, not the media bytes. In a GoHighLevel-hosted rebuild, upload the original logo and videos to a durable media library and replace these pointers with the new public media URLs. Confirm playback on desktop and mobile.
 
 ## Forms and access
 
@@ -23,6 +23,6 @@ Restore the original files from a Lovable codebase ZIP. Do not silently substitu
 
 ## Build verification
 
-Run `npm ci && npm run verify:portable` first. The preflight prints the missing original image paths and Lovable-only media pointers. It must pass before calling this an exact portable clone. Then run `npm run build` and check the rendered preview. The current repo cannot build as-is because the original JPG imports are absent. The source requires `@supabase/supabase-js`, now declared in `package.json` and pinned in `package-lock.json`. Verify all routes, imagery, film playback, player builder, and form submissions in the destination before publishing.
+Run `npm ci && npm run verify:portable` first. The preflight prints the missing original image paths and Lovable-only media pointers. It must pass before calling this an exact portable clone. Then run `npm run build` and check the rendered preview. The restored source passes `npm run build` with the original images, but is not yet portable because the logo and videos still use Lovable-only media URLs. The source requires `@supabase/supabase-js`, now declared in `package.json` and pinned in `package-lock.json`. Verify all routes, imagery, film playback, player builder, and form submissions in the destination before publishing.
 
 Do not treat the reserved Lovable URL `https://ea-legacy.lovable.app` as a live reference until it renders the actual site; its publication was still pending when this file was written.
