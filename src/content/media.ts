@@ -1,7 +1,5 @@
-import logoAsset from "@/assets/EA-Legacy-logo.png.asset.json";
-
 export const brandMedia = {
-  logo: logoAsset.url,
+  logo: "/favicon.png",
 } as const;
 
 export const mediaCrops = {
