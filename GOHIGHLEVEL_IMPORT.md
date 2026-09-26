@@ -23,6 +23,6 @@ Restore the original files from a Lovable codebase ZIP. Do not silently substitu
 
 ## Build verification
 
-After restoring the missing images, `npm ci && npm run build` should complete. The source requires `@supabase/supabase-js`, now declared in `package.json` and pinned in `package-lock.json`. Verify all routes, imagery, film playback, player builder, and form submissions in the destination before publishing.
+Run `npm ci && npm run verify:portable` first. The preflight prints the missing original image paths and Lovable-only media pointers. It must pass before calling this an exact portable clone. Then run `npm run build` and check the rendered preview. The current repo cannot build as-is because the original JPG imports are absent. The source requires `@supabase/supabase-js`, now declared in `package.json` and pinned in `package-lock.json`. Verify all routes, imagery, film playback, player builder, and form submissions in the destination before publishing.
 
 Do not treat the reserved Lovable URL `https://ea-legacy.lovable.app` as a live reference until it renders the actual site; its publication was still pending when this file was written.
