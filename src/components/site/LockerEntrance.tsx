@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, LockKeyhole, ScanLine } from "lucide-react";
+import { ArrowRight, LockKeyhole, ScanLine, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -23,13 +23,15 @@ export function LockerEntrance() {
   const enterRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    if (sessionStorage.getItem(SESSION_KEY) || localStorage.getItem(ACCESS_TOKEN_KEY)) {
-      sessionStorage.setItem(SESSION_KEY, "true");
-      return;
-    }
-    setVisible(true);
-    const timer = window.setTimeout(() => enterRef.current?.focus(), 80);
-    return () => window.clearTimeout(timer);
+    const openSignup = () => {
+      setOpening(false);
+      setError("");
+      startedAt.current = Date.now();
+      setVisible(true);
+      window.setTimeout(() => enterRef.current?.focus(), 80);
+    };
+    window.addEventListener("eal:open-signup", openSignup);
+    return () => window.removeEventListener("eal:open-signup", openSignup);
   }, []);
 
   useEffect(() => {
@@ -37,6 +39,7 @@ export function LockerEntrance() {
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const containFocus = (event: KeyboardEvent) => {
+      if (event.key === "Escape") { setVisible(false); return; }
       if (event.key !== "Tab") return;
       const focusable = Array.from(document.querySelectorAll<HTMLElement>(".locker-entry input, .locker-entry button, .locker-entry a[href]"));
       const first = focusable[0];
@@ -95,6 +98,7 @@ export function LockerEntrance() {
     <div className="locker-door locker-door-left" aria-hidden="true"><span className="locker-door-vents" /></div>
     <div className="locker-door locker-door-right" aria-hidden="true"><span className="locker-door-vents" /></div>
     <div className="locker-entry-content locker-access-panel">
+      <Button type="button" variant="ghost" size="icon" className="absolute right-3 top-3 min-h-11 min-w-11" aria-label="Close sign up" onClick={() => setVisible(false)}><X /></Button>
       <div className="locker-entry-status"><span className="size-1.5 bg-legacy shadow-[0_0_12px_var(--legacy)]" /> Visitor access // EAL 01</div>
       <img src={brandMedia.logo} alt="EA Legacy" className="locker-entry-crest" />
       <div className="locker-lock" aria-hidden="true"><span className="locker-lock-ring"><LockKeyhole className="size-5" /></span><ScanLine className="locker-lock-scan size-4" /></div>
